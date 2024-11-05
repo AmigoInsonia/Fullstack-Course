@@ -14,8 +14,20 @@ const App = () => {
       name: newName
     }
 
-    setPersons(persons.concat(nameObject))
-    setNewName('')
+    let addName = true
+    for (var key in persons) {
+      console.log("name is ", persons[key].name)
+      if(newName.toUpperCase() === persons[key].name.toUpperCase()) {
+        alert(`${newName} is already added to phonebook`)
+        addName = false
+        break
+      }
+    }
+
+    if (addName) {
+      setPersons(persons.concat(nameObject))
+    }
+      setNewName('')
   }
 
   const handleNameChange = (event) => {
