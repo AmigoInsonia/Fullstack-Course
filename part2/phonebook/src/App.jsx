@@ -37,10 +37,15 @@ const App = () => {
     }
 
     let addName = true
+    let updatePhone = false
+    let personId = -1
     for (var key in persons) {
       console.log("name is ", persons[key].name)
       if(newName.toUpperCase() === persons[key].name.toUpperCase()) {
-        alert(`${newName} is already added to phonebook`)
+        if(window.confirm(`${newName} is already added to phonebook, replace the old number with the new one?`)) {
+          updatePhone = true
+          personId = persons[key].id
+        }
         addName = false
         break
       }
@@ -52,6 +57,16 @@ const App = () => {
         .then(returnedPerson => {
           //console.log(response)
           setPersons(persons.concat(returnedPerson))
+        })
+    }
+
+    if(updatePhone) {
+      const person = persons.find(p => p.id === personId)
+      const changedPhone = { ...person, number: newNumber}
+      personService
+        .update(personId, changedPhone)
+        .then(returnedPerson => {
+          setPersons(persons.map(person => person.id === personId ? returnedPerson : person))
         })
     }
       setNewName('')
