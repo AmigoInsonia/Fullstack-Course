@@ -76,6 +76,17 @@ const App = () => {
   const personsToShow = persons.filter(person =>
      person.name.toUpperCase().includes(filter.toUpperCase())) 
 
+  const deletePersonId = (id) => {
+    const person = persons.find(p => p.id === id)
+    if(window.confirm(`Do you really want to delete ${person.name}?`)) {
+      personService
+        .destroy(id)
+        .then(returnedPerson => {
+          setPersons(persons.filter(p => p.id !== id))
+        })
+    }
+  }
+
   return (
     <div>
       <h2>Phonebook</h2>
@@ -91,7 +102,11 @@ const App = () => {
       <h2>Numbers</h2>
         <div>
           {personsToShow.map(person =>
-            <Person key={person.name} person={person} />
+            <Person 
+              key={person.id} 
+              person={person} 
+              deletePerson={() => deletePersonId(person.id)}
+            />
           )}
         </div>
     </div>
