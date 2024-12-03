@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import Person from './components/Person'
 import Filter from './components/Filter'
 import PersonForm from './components/PersonForm'
+import Notification from './components/Notification'
 
 import personService from './services/persons'
 
@@ -11,6 +12,7 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filter, setFilter] = useState('')
+  const [operationMessage, setOperationMessage] = useState(null)
 
   useEffect(() => {
     console.log('effect')
@@ -57,6 +59,12 @@ const App = () => {
         .then(returnedPerson => {
           //console.log(response)
           setPersons(persons.concat(returnedPerson))
+          setOperationMessage(
+            `Added ${returnedPerson.name}`
+          )
+          setTimeout(() => {
+            setOperationMessage(null)
+          }, 5000)
         })
     }
 
@@ -67,6 +75,12 @@ const App = () => {
         .update(personId, changedPhone)
         .then(returnedPerson => {
           setPersons(persons.map(person => person.id === personId ? returnedPerson : person))
+          setOperationMessage(
+            `Changed ${person.name} phone to ${newNumber}`
+          )
+          setTimeout(() => {
+            setOperationMessage(null)
+          }, 5000)
         })
     }
       setNewName('')
@@ -98,6 +112,12 @@ const App = () => {
         .destroy(id)
         .then(returnedPerson => {
           setPersons(persons.filter(p => p.id !== id))
+          setOperationMessage(
+            `Deleted ${person.name} from the phonebook!`
+          )
+          setTimeout(() => {
+            setOperationMessage(null)
+          }, 5000)
         })
     }
   }
@@ -105,6 +125,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={operationMessage} />
       <Filter filter={filter} filterName={filterName}/>
       <h2>add a new</h2>
       <PersonForm 
