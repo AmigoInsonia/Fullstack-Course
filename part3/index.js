@@ -1,7 +1,11 @@
-const express = require('express')
-const app = express()
+const express = require('express');
+const morgan = require('morgan');
+const app = express();
 
-app.use(express.json())
+app.use(express.json());
+let tinyMorgan = morgan('tiny');
+app.use(tinyMorgan);
+app.use(morgan(':method :url :status - :response-time ms :json'));
 
 let persons = [
     { 
@@ -24,58 +28,58 @@ let persons = [
       "name": "Mary Poppendieck", 
       "number": "39-23-6423122"
     }
-]
+];
 
 app.get('/', (request, response)=> {
-    response.send('<h1>Hello World!</h1>')
-})
+    response.send('<h1>Hello World!</h1>');
+});
 
 app.get('/info', (request, response) => {
 	const date = new Date();
-	response.send('Phonebook has info for ' +persons.length+' people</br></br>' + date)
-})
+	response.send('Phonebook has info for ' +persons.length+' people</br></br>' + date);
+});
 
 app.get('/api/persons', (request, response) => {
-    response.json(persons)
-})
+    response.json(persons);
+});
 
 app.get('/api/persons/:id', (request, response) => {
-    const id = request.params.id
-    const person = persons.find(person => person.id === id)
+    const id = request.params.id;
+    const person = persons.find(person => person.id === id);
 
     if (person){
-        response.json(person)
+        response.json(person);
     } else {
-        response.status(400).end()
+        response.status(404).end();
     }
-})
+});
 
 app.delete('/api/persons/:id', (request, response) => {
-    const id = request.params.id
-    persons = persons.filter(person => person.id !== id)
+    const id = request.params.id;
+    persons = persons.filter(person => person.id !== id);
 
-    response.status(204).end()
+    response.status(204).end();
 
-})
+});
 
 const generateId = () => {
     const maxId = persons.length > 0
         ? Math.max(...persons.map(n => Number(n.id)))
-        : 0
-    return String(maxId + 1)
-}
+        : 0;
+    return String(maxId + 1);
+};
 
 app.post('/api/persons', (request, response) => {
-    const body = request.body
+    const body = request.body;
     if (!body.name){
         return response.status(400).json({
             error: 'name is missing'
-        })
+        });
     }
     if (!body.number){
         return response.status(400).json({
             error: 'number is missing'
-        })
+        });
     }
 
     const name = persons.filter(person => person.name === body.name)
@@ -84,20 +88,28 @@ app.post('/api/persons', (request, response) => {
         console.log(name)
         return response.status(400).json({
             error: 'name already exists'
-        })
+        });
     }
 
     const person = {
         name: body.name,
         number: body.number,
         id: generateId()
-    }
+    };
 
-    persons = persons.concat(person)
+    persons = persons.concat(person);
 
-    response.json(person)
-})
+    morgan.token('json', request => {
+       return JSON.stringify(request.body);
+    });
 
-const PORT = 3001
-app.listen(PORT)
-console.log(`Server running on port ${PORT}`)
+    response.json(person);
+});
+
+
+
+
+
+const PORT = 3001;
+app.listen(PORT);
+console.log(`Server running on port ${PORT}`);
